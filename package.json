@@ -1,0 +1,20 @@
+{
+  "name": "weather-agent",
+  "version": "1.0.0",
+  "description": "Intelligent weather notification system with AI agent orchestration, automated scheduling via BullMQ, and Redis-backed job queues.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mayankgupta1008/weather-agent.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mayankgupta1008/weather-agent/issues"
+  },
+  "homepage": "https://github.com/mayankgupta1008/weather-agent#readme"
+}
