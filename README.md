@@ -107,6 +107,159 @@ BullMQ Queue (Redis) → Worker → Agent → Email Sent
 
 **LangGraph Workflow:** `START → Fetch Weather → Format Email → Send Email → END`
 
+## 🎯 Microservice Architecture Explained
+
+This project follows a **microservice architecture** with a **monorepo structure** using Turborepo. Here's what each component does:
+
+### **1️⃣ `apps/backend/` - Authentication & API Service**
+
+**Purpose:** Handles user authentication and general API operations
+
+**Responsibilities:**
+
+- User authentication (signup, login, session management)
+- User management (CRUD operations)
+- Acts as the authentication gateway for all services
+
+**Example Endpoints:**
+
+```
+POST /api/auth/sign-up          # User registration
+POST /api/auth/sign-in          # User login
+GET  /api/auth/get-session      # Get current session
+GET  /api/users/:id             # User profile
+```
+
+**Tech Stack:** Express.js + better-auth + MongoDB
+
+---
+
+### **2️⃣ `apps/weather-agent/` - AI Weather Service**
+
+**Purpose:** AI-powered weather intelligence and email automation
+
+**Responsibilities:**
+
+- LangGraph AI agent orchestration for weather operations
+- BullMQ job queue processing for scheduled emails
+- Weather data fetching and formatting
+- Email delivery via Gmail SMTP
+
+**Example Endpoints:**
+
+```
+POST /api/weatherEmail/sendWeatherEmail              # Instant weather email
+POST /api/weatherEmailScheduler/create               # Schedule recurring emails
+GET  /api/weatherEmailScheduler/list                 # List all schedules
+DELETE /api/weatherEmailScheduler/delete/:id         # Remove schedule
+```
+
+**Tech Stack:** Express.js + LangChain.js + LangGraph.js + BullMQ + Redis + OpenWeatherMap API
+
+---
+
+### **3️⃣ `packages/` - Shared Code Library**
+
+**Purpose:** Reusable code shared across all microservices
+
+**Contains:**
+
+- **Better-auth configuration** - Shared authentication setup
+- **Database models** - User, WeatherEmail, Session schemas
+- **Common middleware** - Auth middleware, validation, error handling
+- **Shared types** - TypeScript interfaces and types
+- **Utilities** - Helper functions used by multiple services
+
+**Why separate packages?**
+
+- Ensures consistent authentication across all services
+- Avoids code duplication (DRY principle)
+- Single source of truth for database schemas
+- Type safety across the entire monorepo
+
+---
+
+### **🔄 How Services Work Together**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      USER REQUEST                           │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ↓
+         ┌──────────────────────────────────────┐
+         │   Kubernetes Ingress / API Gateway   │
+         └──────────────────────────────────────┘
+                    │                  │
+        ┌───────────┘                  └────────────┐
+        ↓                                           ↓
+┌─────────────────────┐                  ┌──────────────────────┐
+│  apps/backend/      │                  │ apps/weather-agent/  │
+│  (Auth Service)     │                  │ (Weather AI Service) │
+├─────────────────────┤                  ├──────────────────────┤
+│ • User signup       │                  │ • AI agent execution │
+│ • User login        │                  │ • Email scheduling   │
+│ • Session mgmt      │                  │ • BullMQ workers     │
+│ • User CRUD         │                  │ • Weather fetching   │
+└─────────────────────┘                  └──────────────────────┘
+        │                                           │
+        └────────────────┬──────────────────────────┘
+                         ↓
+               ┌──────────────────┐
+               │   packages/      │
+               ├──────────────────┤
+               │ • Auth config    │
+               │ • User model     │
+               │ • Middlewares    │
+               │ • Shared types   │
+               └──────────────────┘
+                         ↓
+               ┌──────────────────┐
+               │   MongoDB        │
+               │ • users          │
+               │ • sessions       │
+               │ • weatherEmails  │
+               └──────────────────┘
+```
+
+---
+
+### **🔐 Authentication Flow Example**
+
+Both services use the same authentication system from `packages/`:
+
+```typescript
+// 1. User signs up via backend service
+POST http://localhost:5001/api/auth/sign-up
+→ Creates user in MongoDB
+→ Returns session token
+
+// 2. User requests weather email via weather-agent service
+POST http://localhost:XXXX/api/weatherEmail/sendWeatherEmail
+Headers: { Authorization: "Bearer <token>" }
+
+// 3. Weather-agent verifies token using shared auth middleware
+import { authMiddleware } from '@weather-agent/shared/middlewares';
+
+router.post('/sendWeatherEmail',
+  authMiddleware,  // ← Verifies session from packages/
+  weatherController.send
+);
+```
+
+---
+
+### **🌟 Microservice Benefits**
+
+| Benefit                    | Description                                                       |
+| -------------------------- | ----------------------------------------------------------------- |
+| **Independent Scaling**    | Scale weather-agent separately from backend based on demand       |
+| **Technology Isolation**   | Backend doesn't need LangChain; weather-agent doesn't handle auth |
+| **Team Separation**        | Different teams can work on auth vs AI features independently     |
+| **Fault Isolation**        | If AI crashes, authentication service stays operational           |
+| **Independent Deployment** | Deploy weather features without touching auth code                |
+| **Code Reusability**       | Both services share auth, models, and utilities from packages     |
+
 ## 📁 Project Structure
 
 ```
