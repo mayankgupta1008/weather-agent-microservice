@@ -87,6 +87,9 @@ importers:
       better-auth:
         specifier: ^1.4.6
         version: 1.4.6
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       mongodb:
         specifier: ^7.0.0
         version: 7.0.0
@@ -98,6 +101,9 @@ importers:
         version: 4.1.13
 
     devDependencies:
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@types/node':
         specifier: ^25.0.1
         version: 25.0.1
