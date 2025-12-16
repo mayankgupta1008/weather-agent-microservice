@@ -1,5 +1,5 @@
 import express from "express";
-import { connectDB } from "@weather-agent/shared";
+import connectDB from "./lib/db";
 
 const app = express();
 

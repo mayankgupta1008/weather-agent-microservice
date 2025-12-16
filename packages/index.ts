@@ -1,3 +1,5 @@
-import connectDB from "./src/common/db";
+import UserModel from "./src/models/user.model";
+import WeatherEmailModel from "./src/models/weatherEmail.model";
+import { validate } from "./src/common/validation";
 
-export { connectDB };
+export { UserModel, WeatherEmailModel, validate };
