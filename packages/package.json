@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production node index.js",
-    "dev": "NODE_ENV=development nodemon index.js"
+    "dev": "NODE_ENV=development tsx watch src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,8 +17,10 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }
