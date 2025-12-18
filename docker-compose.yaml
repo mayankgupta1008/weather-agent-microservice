@@ -57,7 +57,7 @@ services:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
-    container_name: weather-agent-backend
+    container_name: backend
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -72,18 +72,18 @@ services:
     networks:
       - app_network
 
-  weather-agent:
+  agent-service:
     build:
       context: .
-      dockerfile: apps/weather-agent/Dockerfile
-    container_name: weather-agent
+      dockerfile: apps/agent-service/Dockerfile
+    container_name: agent-service
     restart: unless-stopped
     ports:
       - "3001:3001"
     env_file:
-      - ./apps/weather-agent/.env
+      - ./apps/agent-service/.env
     volumes:
-      - ./apps/weather-agent/src:/app/apps/weather-agent/src
+      - ./apps/agent-service/src:/app/apps/agent-service/src
       - ./packages:/app/packages
     depends_on:
       mongodb:

@@ -134,7 +134,7 @@ GET  /api/users/:id             # User profile
 
 ---
 
-### **2️⃣ `apps/weather-agent/` - AI Weather Service**
+### **2️⃣ `apps/agent-service/` - AI Weather Service**
 
 **Purpose:** AI-powered weather intelligence and email automation
 
@@ -194,7 +194,7 @@ DELETE /api/weatherEmailScheduler/delete/:id         # Remove schedule
         ┌───────────┘                  └────────────┐
         ↓                                           ↓
 ┌─────────────────────┐                  ┌──────────────────────┐
-│  apps/backend/      │                  │ apps/weather-agent/  │
+│  apps/backend/      │                  │ apps/agent-service/  │
 │  (Auth Service)     │                  │ (Weather AI Service) │
 ├─────────────────────┤                  ├──────────────────────┤
 │ • User signup       │                  │ • AI agent execution │
@@ -234,7 +234,7 @@ POST http://localhost:5001/api/auth/sign-up
 → Creates user in MongoDB
 → Returns session token
 
-// 2. User requests weather email via weather-agent service
+// 2. User requests weather email via agent-service service
 POST http://localhost:XXXX/api/weatherEmail/sendWeatherEmail
 Headers: { Authorization: "Bearer <token>" }
 
@@ -253,8 +253,8 @@ router.post('/sendWeatherEmail',
 
 | Benefit                    | Description                                                       |
 | -------------------------- | ----------------------------------------------------------------- |
-| **Independent Scaling**    | Scale weather-agent separately from backend based on demand       |
-| **Technology Isolation**   | Backend doesn't need LangChain; weather-agent doesn't handle auth |
+| **Independent Scaling**    | Scale agent-service separately from backend based on demand       |
+| **Technology Isolation**   | Backend doesn't need LangChain; agent-service doesn't handle auth |
 | **Team Separation**        | Different teams can work on auth vs AI features independently     |
 | **Fault Isolation**        | If AI crashes, authentication service stays operational           |
 | **Independent Deployment** | Deploy weather features without touching auth code                |
@@ -277,7 +277,7 @@ weather-ai-app/
 │   │   ├── Dockerfile
 │   │   └── package.json
 │   │
-│   └── weather-agent/                 # LangGraph service
+│   └── agent-service/                 # LangGraph service
 │       ├── src/
 │       ├── Dockerfile
 │       └── package.json
@@ -297,7 +297,7 @@ weather-ai-app/
 ├── k8s/                               # Kubernetes configs
 │   ├── web.yaml                       # Web deployment + service
 │   ├── backend.yaml                   # Backend deployment + service
-│   ├── weather-agent.yaml             # Agent deployment + service
+│   ├── agent-service.yaml             # Agent deployment + service
 │   ├── mongo.yaml                     # MongoDB StatefulSet
 │   ├── redis.yaml                     # Redis deployment
 │   └── ingress.yaml                   # Nginx Ingress routing
