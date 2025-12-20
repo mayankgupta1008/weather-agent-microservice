@@ -63,6 +63,7 @@ services:
       - "3000:3000"
     env_file:
       - ./apps/backend/.env
+      - ./packages/shared/.env
     volumes:
       - ./apps/backend/src:/app/apps/backend/src
       - ./packages:/app/packages
@@ -82,6 +83,7 @@ services:
       - "3001:3001"
     env_file:
       - ./apps/agent-service/.env
+      - ./packages/shared/.env
     volumes:
       - ./apps/agent-service/src:/app/apps/agent-service/src
       - ./packages:/app/packages

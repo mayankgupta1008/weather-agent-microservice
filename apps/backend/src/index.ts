@@ -1,5 +1,5 @@
 import express from "express";
-import connectDB from "./lib/db.js";
+import connectDB from "@weather-agent/shared/src/common/db.config.js";
 import dotenv from "dotenv";
 dotenv.config();
 

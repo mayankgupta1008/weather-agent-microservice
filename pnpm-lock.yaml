@@ -34,9 +34,6 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
-      ioredis:
-        specifier: ^5.8.2
-        version: 5.8.2
       mongoose:
         specifier: ^9.0.2
         version: 9.0.2
@@ -108,9 +105,15 @@ importers:
       better-auth:
         specifier: ^1.4.6
         version: 1.4.7(mongodb@7.0.0)
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      ioredis:
+        specifier: ^5.8.2
+        version: 5.8.2
       mongodb:
         specifier: ^7.0.0
         version: 7.0.0
@@ -128,7 +131,7 @@ importers:
         specifier: ^5.0.6
         version: 5.0.6
       '@types/node':
-        specifier: ^25.0.1
+        specifier: ^25.0.3
         version: 25.0.3
       tsx:
         specifier: ^4.21.0
