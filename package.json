@@ -8,7 +8,7 @@
     "services:down": "docker-compose down",
     "services:nuke": "docker-compose down -v",
     "services:rebuild": "docker-compose build --no-cache && docker-compose up -d --remove-orphans",
-    "dev:backend": "pnpm --filter backend dev"
+    "services:restart": "docker-compose restart"
   },
   "repository": {
     "type": "git",
