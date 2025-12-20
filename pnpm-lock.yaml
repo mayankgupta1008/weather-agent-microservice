@@ -37,6 +37,9 @@ importers:
       ioredis:
         specifier: ^5.8.2
         version: 5.8.2
+      mongoose:
+        specifier: ^9.0.2
+        version: 9.0.2
       nodemailer:
         specifier: ^7.0.11
         version: 7.0.11
