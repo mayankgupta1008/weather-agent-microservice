@@ -15,6 +15,7 @@
     "@langchain/langgraph": "^1.0.4",
     "@weather-agent/shared": "workspace:*",
     "axios": "^1.13.2",
+    "better-auth": "^1.4.7",
     "bullmq": "^5.66.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

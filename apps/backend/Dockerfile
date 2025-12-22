@@ -14,6 +14,6 @@ COPY apps/backend ./apps/backend
 
 COPY packages ./packages
 
-EXPOSE 3001
+EXPOSE 5002
 
 CMD ["pnpm", "--filter", "backend", "run", "dev"]

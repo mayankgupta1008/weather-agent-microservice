@@ -60,7 +60,7 @@ services:
     container_name: backend
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "5001:5001"
     env_file:
       - ./apps/backend/.env
       - ./packages/shared/.env
@@ -80,7 +80,7 @@ services:
     container_name: agent-service
     restart: unless-stopped
     ports:
-      - "3001:3001"
+      - "5002:5002"
     env_file:
       - ./apps/agent-service/.env
       - ./packages/shared/.env

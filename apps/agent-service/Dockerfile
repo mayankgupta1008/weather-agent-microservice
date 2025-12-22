@@ -14,6 +14,6 @@ COPY apps/agent-service ./apps/agent-service
 
 COPY packages ./packages
 
-EXPOSE 3001
+EXPOSE 5002
 
 CMD ["pnpm", "--filter", "agent-service", "run", "dev"]
