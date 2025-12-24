@@ -32,23 +32,12 @@ app.use(
  * - etc.
  */
 
+// Better-auth suggests to put this before express.json()
 app.use("/api/auth", toNodeHandler(auth));
 
 app.use(express.json());
 
 app.use("/api/schedule", weatherScheduleRouter);
-
-/**
- * 3. Sample Protected Route
- * This is how you protect your logic routes using the shared middleware.
- */
-app.get("/api/test-auth", requireAuth, (req, res) => {
-  const user = res.locals.user;
-  res.json({
-    message: `Success! Authenticated as ${user.name}`,
-    user,
-  });
-});
 
 const PORT = process.env.PORT || 5001;
 

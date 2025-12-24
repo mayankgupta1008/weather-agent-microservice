@@ -8,11 +8,11 @@ await connectDB();
 
 export const auth = betterAuth({
   database: mongodbAdapter(mongoose.connection.getClient().db()),
-  baseURL: "http://localhost:5001",
+  baseURL: `http://localhost:${process.env.BACKEND_PORT || 5001}`,
   plugins: [bearer()],
   trustedOrigins: [
-    "http://localhost:5001", // Your backend
-    "http://localhost:3000", // Add your frontend URL
+    `http://localhost:${process.env.BACKEND_PORT || 5001}`,
+    `http://localhost:${process.env.FRONTEND_PORT || 3000}`,
   ],
   emailAndPassword: {
     enabled: true,
