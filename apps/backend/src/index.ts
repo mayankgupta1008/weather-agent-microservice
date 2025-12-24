@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import { toNodeHandler } from "better-auth/node";
 import connectDB from "@weather-agent/shared/src/common/db.config.js";
 import { auth } from "@weather-agent/shared/src/common/auth.config.js";
-import { requireAuth } from "@weather-agent/shared/src/common/auth.middleware.js";
 import weatherScheduleRouter from "./routes/weatherSchedule.route.js";
 
 dotenv.config();
@@ -18,7 +17,7 @@ const app = express();
  */
 app.use(
   cors({
-    origin: ["http://localhost:3000"], // Replace with your frontend URL if different
+    origin: [`http://localhost:${process.env.FRONTEND_PORT || 3000}`], // Replace with your frontend URL if different
     credentials: true,
   })
 );
@@ -39,13 +38,15 @@ app.use(express.json());
 
 app.use("/api/schedule", weatherScheduleRouter);
 
-const PORT = process.env.PORT || 5001;
+const BACKEND_PORT = process.env.BACKEND_PORT || 5001;
 
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Backend service running on http://localhost:${PORT}`);
+    app.listen(BACKEND_PORT, () => {
+      console.log(
+        `Backend service running on http://localhost:${BACKEND_PORT}`
+      );
     });
   } catch (error) {
     console.error("Failed to start server:", error);
