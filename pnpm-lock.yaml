@@ -26,8 +26,8 @@ importers:
         specifier: ^1.4.7
         version: 1.4.7(mongodb@7.0.0)
       bullmq:
-        specifier: ^5.66.0
-        version: 5.66.1
+        specifier: ^5.66.3
+        version: 5.66.3
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -74,6 +74,9 @@ importers:
       better-auth:
         specifier: ^1.4.7
         version: 1.4.7(mongodb@7.0.0)
+      bullmq:
+        specifier: ^5.66.3
+        version: 5.66.3
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -111,6 +114,9 @@ importers:
       better-auth:
         specifier: ^1.4.6
         version: 1.4.7(mongodb@7.0.0)
+      bullmq:
+        specifier: ^5.66.3
+        version: 5.66.3
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -858,8 +864,8 @@ packages:
     resolution: {integrity: sha512-Kwc6Wh4lQ5OmkqqKhYGKIuELXl+EPYSCObVE6bWsp1T/cGkOCBN0I8wF/T44BiuhHyNi1mmKVPXk60d41xZ7kw==}
     engines: {node: '>=20.19.0'}
 
-  bullmq@5.66.1:
-    resolution: {integrity: sha512-bsznO3V4zRSdoZ8dN2qc172AavKHuCdvPdV8zBmiikVZnlZ/XbPiu504d6yK8AOJpyPzTJEaKGKiMClM/7iWXg==}
+  bullmq@5.66.3:
+    resolution: {integrity: sha512-ZZfFIjGv3XRcvJDi6J02SZE8/86xQHLdjiKLrtxOGH9FrBT03sE2QZks2UuvGmDSxFeSY4lSqI1ulCPgIWicqg==}
 
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
@@ -2425,7 +2431,7 @@ snapshots:
 
   bson@7.0.0: {}
 
-  bullmq@5.66.1:
+  bullmq@5.66.3:
     dependencies:
       cron-parser: 4.9.0
       ioredis: 5.8.2

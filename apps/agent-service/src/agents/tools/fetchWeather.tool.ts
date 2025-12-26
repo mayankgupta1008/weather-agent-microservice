@@ -27,7 +27,7 @@ export const fetchWeatherTool = tool(
 
       return {
         temperature: data.main.temp,
-        feelsLike: data.main.feelsa_like,
+        feelsLike: data.main.feels_like,
         description: data.weather[0].description,
         humidity: data.main.humidity,
         windSpeed: data.wind.speed,

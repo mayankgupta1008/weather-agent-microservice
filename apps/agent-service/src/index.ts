@@ -1,6 +1,7 @@
 import express from "express";
 import connectDB from "@weather-agent/shared/src/common/db.config.js";
 import "@weather-agent/shared/src/common/redis.config.js";
+import "./workers/weatherEmail.worker.js"; // Import worker to start listening for jobs
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();

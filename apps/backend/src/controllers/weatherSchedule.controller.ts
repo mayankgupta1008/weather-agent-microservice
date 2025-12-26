@@ -1,17 +1,31 @@
 import { Request, Response } from "express";
 import WeatherEmail from "@weather-agent/shared/src/models/weatherEmail.model.js";
+import {
+  scheduleWeatherEmail,
+  removeScheduledJobs,
+} from "@weather-agent/shared/src/common/weatherEmail.scheduler.js";
 
 export const createWeatherSchedule = async (req: Request, res: Response) => {
   try {
-    const { city } = (req as any).body;
+    const { city, cronPattern } = (req as any).body;
     const authUser = (req as any).user;
 
+    // 1. Save to database
     const weatherEmail = new WeatherEmail({
       user: authUser.id,
       city,
       recipientEmail: authUser.email,
     });
     await weatherEmail.save();
+
+    // 2. Schedule job in BullMQ queue
+    await scheduleWeatherEmail(
+      city,
+      authUser.email,
+      cronPattern || "0 17 * * *",
+      `weather-${weatherEmail._id}`
+    );
+
     return res.status(201).json({
       message: "Weather schedule created successfully",
       weatherEmail,
@@ -29,15 +43,20 @@ export const deleteWeatherSchedule = async (req: Request, res: Response) => {
     const authUser = (req as any).user;
     const { scheduleId } = (req as any).params;
 
+    // 1. Delete from database
     const weatherEmail = await WeatherEmail.findOneAndDelete({
       _id: scheduleId,
       user: authUser.id,
     });
+
     if (!weatherEmail) {
       return res.status(404).json({
         message: "Weather schedule not found",
       });
     }
+
+    // 2. Remove job from BullMQ queue
+    await removeScheduledJobs(`weather-${scheduleId}`);
 
     return res.status(200).json({
       message: "Weather schedule deleted successfully",

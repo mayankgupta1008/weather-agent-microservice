@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "better-auth": "^1.4.6",
+    "bullmq": "^5.66.3",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "ioredis": "^5.8.2",
