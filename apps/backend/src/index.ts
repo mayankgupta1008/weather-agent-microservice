@@ -25,7 +25,7 @@ app.use(
 /**
  * 2. Mount BetterAuth Handler
  * This single line handles ALL auth logic:
- * - POST /api/auth/signup/email
+ * - POST /api/auth/sign-up/email
  * - POST /api/auth/sign-in/email
  * - GET  /api/auth/get-session
  * - etc.

@@ -22,8 +22,7 @@ const startServer = async () => {
 
   app.listen(AGENT_PORT, () => {
     console.log(
-      "Weather agent service connected to DB and is running on PORT:",
-      AGENT_PORT
+      `Weather agent service connected to DB and is running on PORT: ${AGENT_PORT}`
     );
   });
 };
