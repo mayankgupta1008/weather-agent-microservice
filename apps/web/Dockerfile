@@ -12,9 +12,6 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Copy package.json files for the service and its local dependencies
 COPY apps/web/package.json ./apps/web/
-# Web usually doesn't need @weather-agent/shared since it's a frontend app, 
-# but if it does, keep it here. Based on package.json, it's not listed, 
-# but we follow the monorepo pattern for consistency.
 COPY packages/shared/package.json ./packages/shared/
 
 # Install dependencies using cache mount for pnpm store
@@ -28,16 +25,16 @@ COPY packages/shared ./packages/shared
 # Build the web application
 RUN pnpm --filter web build
 
-# Runtime stage: Serve with Nginx
-FROM nginx:stable-alpine AS runtime
+# Runtime stage - Use Nginx to serve static assets
+FROM nginx:alpine AS runtime
 
-# Copy the built assets from the build stage
-# Note: apps/web/dist is the default Vite build output
+# Copy built assets to Nginx's public directory
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 
-# Copy the custom Nginx configuration for SPA routing
+# Copy custom Nginx configuration
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
+# Nginx starts automatically in the foreground by default
 CMD ["nginx", "-g", "daemon off;"]
