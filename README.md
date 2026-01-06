@@ -263,59 +263,40 @@ router.post('/sendWeatherEmail',
 ## 📁 Project Structure
 
 ```
-weather-ai-app/
-│
-├── apps/                              # Your microservices
-│   ├── web/                           # React frontend
-│   │   ├── src/
-│   │   ├── Dockerfile
-│   │   ├── nginx.conf
-│   │   └── package.json
-│   │
-│   ├── backend/                       # Auth + API service
-│   │   ├── src/
-│   │   ├── Dockerfile
-│   │   └── package.json
-│   │
-│   └── agent-service/                 # LangGraph service
-│       ├── src/
-│       ├── Dockerfile
-│       └── package.json
-│
-├── packages/                          # Shared code
-│   ├── common/                        # Types & validations
-│   │   ├── src/
-│   │   │   ├── types.ts
-│   │   │   └── validations.ts
-│   │   └── package.json
-│   │
-│   └── database/                      # MongoDB models
-│       ├── src/
-│       │   └── models/
-│       └── package.json
-│
-├── k8s/                               # Kubernetes configs
-│   ├── web.yaml                       # Web deployment + service
-│   ├── backend.yaml                   # Backend deployment + service
-│   ├── agent-service.yaml             # Agent deployment + service
-│   ├── mongo.yaml                     # MongoDB StatefulSet
-│   ├── redis.yaml                     # Redis deployment
-│   └── ingress.yaml                   # Nginx Ingress routing
-│
-├── terraform/                         # Infrastructure (pick ONE cloud)
-│   ├── main.tf                        # EKS/GKE cluster
-│   ├── variables.tf
-│   └── outputs.tf
-│
-├── .github/
-│   └── workflows/
-│       └── deploy.yaml                # Single simple CI/CD
-│
-├── docker-compose.yml                 # Local development
-├── package.json                       # Root package.json
-├── pnpm-workspace.yaml                # Workspace definition
-├── turbo.json                         # Build config
-└── README.md
+weather-agent/
+├── .env                    # Environment variables
+├── .dockerignore           # Docker ignore rules
+├── .gitignore              # Git ignore rules
+├── docker-compose.yaml     # Local development orchestration
+├── package.json            # Root package configuration
+├── pnpm-workspace.yaml     # Workspace definition (monorepo)
+├── apps/                   # Microservices and Frontend
+│   ├── web/                # React/Vite Frontend
+│   │   ├── src/            # UI components and logic
+│   │   ├── Dockerfile      # Frontend containerization
+│   │   └── vite.config.ts  # Vite configuration
+│   ├── backend/            # Express.js API Gateway
+│   │   ├── src/            # API routes and controllers
+│   │   └── Dockerfile      # Backend containerization
+│   └── agent-service/      # Background Workers / AI Agents
+│       ├── src/            # Workers and Agent logic
+│       └── Dockerfile      # Agent service containerization
+├── packages/               # Shared libraries
+│   └── shared/             # Common models, validation, and config
+│       ├── src/            # Shared source code
+│       │   ├── common/     # DB, Redis, Queue, Auth configs
+│       │   ├── models/     # Shared data models/interfaces
+│       │   └── index.ts    # Entry point for shared package
+├── infra/                  # Infrastructure configuration
+│   ├── nginx/              # Nginx reverse proxy configuration
+│   ├── prometheus/         # Monitoring configuration
+│   └── grafana/            # Dashboards and visualization
+├── k8s/                    # Kubernetes manifests
+│   ├── apps/               # Service deployments (web, backend, agent)
+│   ├── infra/              # Database and Redis services
+│   └── common/             # ConfigMaps and Secrets
+├── terraform/              # Infrastructure as Code (Cloud setup)
+└── scripts/                # Utility scripts
 ```
 
 ## 📧 Email Output
