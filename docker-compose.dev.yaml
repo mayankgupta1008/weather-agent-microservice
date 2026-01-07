@@ -1,31 +1,18 @@
 version: "3.8"
 services:
   prometheus:
-    image: prom/prometheus:latest
+    image: busybox
     container_name: prometheus
-    restart: unless-stopped
-    volumes:
-      - ./infra/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+    command: top
     networks:
       - app_network
-    depends_on:
-      - backend
-      - agent-service
 
   grafana:
-    image: grafana/grafana:latest
+    image: busybox
     container_name: grafana
-    restart: unless-stopped
-    environment:
-      - GF_SERVER_ROOT_URL=http://localhost/grafana/
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./infra/grafana/provisioning:/etc/grafana/provisioning
+    command: top
     networks:
       - app_network
-    depends_on:
-      - prometheus
 
   redis:
     image: redis:alpine
@@ -33,6 +20,8 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
+    ports:
+      - "6379:6379"
     networks:
       - app_network
     healthcheck:
@@ -50,6 +39,8 @@ services:
       - .env
     volumes:
       - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
     networks:
       - app_network
     command: ["mongod", "--bind_ip_all"]
@@ -70,6 +61,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    ports:
+      - "8081:8081"
     depends_on:
       mongodb:
         condition: service_healthy
@@ -79,15 +72,19 @@ services:
   backend:
     build:
       context: .
-      dockerfile: apps/backend/Dockerfile
+      dockerfile: apps/backend/Dockerfile.dev
     container_name: backend
     restart: unless-stopped
     env_file:
       - ./apps/backend/.env
       - ./packages/shared/.env
     volumes:
-      - ./apps/backend/src:/app/apps/backend/src
+      - ./apps/backend:/app/apps/backend
+      - /app/apps/backend/node_modules
       - ./packages:/app/packages
+      - /app/packages/shared/node_modules
+    ports:
+      - "5001:5001"
     depends_on:
       mongodb:
         condition: service_healthy
@@ -111,15 +108,19 @@ services:
   agent-service:
     build:
       context: .
-      dockerfile: apps/agent-service/Dockerfile
+      dockerfile: apps/agent-service/Dockerfile.dev
     container_name: agent-service
     restart: unless-stopped
     env_file:
       - ./apps/agent-service/.env
       - ./packages/shared/.env
     volumes:
-      - ./apps/agent-service/src:/app/apps/agent-service/src
+      - ./apps/agent-service:/app/apps/agent-service
+      - /app/apps/agent-service/node_modules
       - ./packages:/app/packages
+      - /app/packages/shared/node_modules
+    ports:
+      - "5002:5002"
     depends_on:
       mongodb:
         condition: service_healthy
@@ -145,14 +146,18 @@ services:
   web:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: apps/web/Dockerfile.dev
     container_name: web
     restart: unless-stopped
     env_file:
       - ./packages/shared/.env
     volumes:
-      - ./apps/web/src:/app/apps/web/src
+      - ./apps/web:/app/apps/web
+      - /app/apps/web/node_modules
       - ./packages:/app/packages
+      - /app/packages/shared/node_modules
+    ports:
+      - "5173:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -180,8 +185,6 @@ volumes:
   redis_data:
     driver: local
   mongodb_data:
-    driver: local
-  grafana_data:
     driver: local
 
 networks:

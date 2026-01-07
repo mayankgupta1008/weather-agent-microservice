@@ -4,11 +4,16 @@
   "description": "Intelligent weather notification system with AI agent orchestration, automated scheduling via BullMQ, and Redis-backed job queues.",
   "main": "index.js",
   "scripts": {
-    "services:up": "docker-compose up -d --build --remove-orphans",
-    "services:down": "docker-compose down",
-    "services:nuke": "docker-compose down -v --remove-orphans",
-    "services:rebuild": "docker-compose build --no-cache && docker-compose up -d --remove-orphans",
-    "services:restart": "docker-compose restart"
+    "dev:up": "docker-compose -f docker-compose.dev.yaml up -d --build --remove-orphans",
+    "dev:down": "docker-compose -f docker-compose.dev.yaml down",
+    "dev:nuke": "docker-compose -f docker-compose.dev.yaml down -v --remove-orphans",
+    "dev:rebuild": "docker-compose -f docker-compose.dev.yaml build --no-cache && docker-compose -f docker-compose.dev.yaml up -d --remove-orphans",
+    "dev:restart": "docker-compose -f docker-compose.dev.yaml restart",
+    "prod:up": "docker-compose -f docker-compose.prod.yaml up -d --build --remove-orphans",
+    "prod:down": "docker-compose -f docker-compose.prod.yaml down",
+    "prod:nuke": "docker-compose -f docker-compose.prod.yaml down -v --remove-orphans",
+    "prod:rebuild": "docker-compose -f docker-compose.prod.yaml build --no-cache && docker-compose -f docker-compose.prod.yaml up -d --remove-orphans",
+    "prod:restart": "docker-compose -f docker-compose.prod.yaml restart"
   },
   "repository": {
     "type": "git",

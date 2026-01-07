@@ -6,13 +6,10 @@ import { defineConfig } from "vite";
 // https://vite.dev/config/
 export default defineConfig(() => ({
   plugins: [react(), tailwindcss()],
-  server:
-    process.env.NODE_ENV === "development"
-      ? {
-          host: "0.0.0.0",
-          port: 5173,
-        }
-      : undefined,
+  server: {
+    host: "0.0.0.0",
+    port: 80,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
