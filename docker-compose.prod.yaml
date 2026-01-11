@@ -82,6 +82,8 @@ services:
       dockerfile: apps/backend/Dockerfile.prod
     container_name: backend
     restart: unless-stopped
+    environment:
+      - NODE_ENV=production
     env_file:
       - ./apps/backend/.env
       - ./packages/shared/.env
@@ -114,6 +116,8 @@ services:
       dockerfile: apps/agent-service/Dockerfile.prod
     container_name: agent-service
     restart: unless-stopped
+    environment:
+      - NODE_ENV=production
     env_file:
       - ./apps/agent-service/.env
       - ./packages/shared/.env

@@ -23,11 +23,21 @@ export const auth = betterAuth({
   plugins: [
     bearer(),
     oAuthProxy({
-      productionURL: "http://localhost:5173",
-      currentURL: "http://localhost:5173",
+      productionURL:
+        process.env.NODE_ENV === "production"
+          ? "http://localhost"
+          : "http://localhost:5173",
+      currentURL:
+        process.env.NODE_ENV === "production"
+          ? "http://localhost"
+          : "http://localhost:5173",
     }),
   ],
-  trustedOrigins: ["http://localhost"],
+  trustedOrigins: [
+    process.env.NODE_ENV === "production"
+      ? "http://localhost"
+      : "http://localhost:5173",
+  ],
   emailAndPassword: {
     enabled: true,
   },
