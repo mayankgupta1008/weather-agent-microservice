@@ -16,7 +16,11 @@ spec:
   # Run 1 replica (increase for high availability)
   # Note: If scaling >1, ensure job queue is configured for distributed processing
   replicas: 1
-
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: agent-service
@@ -36,6 +40,13 @@ spec:
           ports:
             - containerPort: 5002
               name: http
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "300m"
 
           # ========================================
           # ENVIRONMENT VARIABLES

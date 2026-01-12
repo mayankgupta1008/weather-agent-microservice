@@ -1,56 +1,22 @@
-# Kubernetes Ingress for Weather Agent Application
-# Provides external HTTP/HTTPS access to your services
-#
-# WHAT THIS DOES:
-# - Exposes your app at a single domain (e.g., weather-agent.com)
-# - Routes traffic to correct services based on URL path
-# - Can handle SSL/TLS certificates for HTTPS
-#
-# PREREQUISITES:
-# 1. Install an Ingress Controller (nginx, traefik, etc.)
-#    For nginx: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/cloud/deploy.yaml
-# 2. Have a domain name (or use localhost for testing)
-# 3. Optional: SSL certificate (Let's Encrypt with cert-manager)
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: weather-agent-ingress
   namespace: default
   annotations:
-    # ========================================
-    # NGINX INGRESS CONTROLLER ANNOTATIONS
-    # ========================================
-    # Specify which ingress controller to use
-    kubernetes.io/ingress.class: "nginx"
-
-    # Enable CORS for frontend-backend communication
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-
-    # Increase body size for file uploads (if needed)
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-
-    # SSL redirect (uncomment when you have HTTPS configured)
-    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
-
-    # ========================================
-    # CERT-MANAGER ANNOTATIONS (for auto SSL)
-    # ========================================
-    # Uncomment when using cert-manager for Let's Encrypt
-    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
-
+    # RATE LIMITING
+    nginx.ingress.kubernetes.io/limit-rps: "15"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
 spec:
-  # ========================================
-  # ROUTING RULES
-  # ========================================
+  ingressClassName: nginx
   rules:
-    # Rule 1: Main domain routing
-    - host: weather-agent.com # Replace with your actual domain
+    - host: weather-agent.com
       http:
         paths:
-          # Backend API routes
-          # All requests to /api/* go to backend service
+          # Backend API
           - path: /api
             pathType: Prefix
             backend:
@@ -59,107 +25,20 @@ spec:
                 port:
                   number: 5001
 
-          # Agent service routes (if you want to expose it)
-          # Uncomment if agent-service needs external access
-          # - path: /agent
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: agent-service
-          #       port:
-          #         number: 5002
+          # Agent Service
+          - path: /agent
+            pathType: Prefix
+            backend:
+              service:
+                name: agent-service
+                port:
+                  number: 5002
 
-          # Frontend/Web routes
-          # All other requests (/, /home, /dashboard, etc.) go to web
+          # Web Frontend
           - path: /
             pathType: Prefix
             backend:
               service:
                 name: web
                 port:
-                  number: 80 # Or whatever port your web service uses
-
-  # ========================================
-  # TLS/SSL CONFIGURATION (Optional but recommended)
-  # ========================================
-  # Uncomment when you have SSL certificates
-  # tls:
-  #   - hosts:
-  #       - weather-agent.com
-  #       - www.weather-agent.com
-  #     secretName: weather-agent-tls  # K8s secret containing your SSL cert
-
----
-# Alternative: Multiple subdomains
-# Use this if you want api.yourapp.com, www.yourapp.com, etc.
-
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: weather-agent-ingress
-#   namespace: default
-# spec:
-#   rules:
-#     # API subdomain
-#     - host: api.weather-agent.com
-#       http:
-#         paths:
-#           - path: /
-#             pathType: Prefix
-#             backend:
-#               service:
-#                 name: backend
-#                 port:
-#                   number: 5001
-#
-#     # Main web subdomain
-#     - host: www.weather-agent.com
-#       http:
-#         paths:
-#           - path: /
-#             pathType: Prefix
-#             backend:
-#               service:
-#                 name: web
-#                 port:
-#                   number: 80
-#
-#     # Root domain redirect to www
-#     - host: weather-agent.com
-#       http:
-#         paths:
-#           - path: /
-#             pathType: Prefix
-#             backend:
-#               service:
-#                 name: web
-#                 port:
-#                   number: 80
-
----
-# For local development/testing (using localhost or minikube)
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: weather-agent-ingress
-#   namespace: default
-#   annotations:
-#     kubernetes.io/ingress.class: "nginx"
-# spec:
-#   rules:
-#     - http:  # No host specified = matches any host/IP
-#         paths:
-#           - path: /api
-#             pathType: Prefix
-#             backend:
-#               service:
-#                 name: backend
-#                 port:
-#                   number: 5001
-#           - path: /
-#             pathType: Prefix
-#             backend:
-#               service:
-#                 name: web
-#                 port:
-#                   number: 80
+                  number: 80

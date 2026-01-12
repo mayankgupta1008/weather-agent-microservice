@@ -19,25 +19,15 @@ export const auth = betterAuth({
       },
     },
   },
-  baseURL: "http://localhost/api/auth",
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost/api/auth",
   plugins: [
     bearer(),
     oAuthProxy({
-      productionURL:
-        process.env.NODE_ENV === "production"
-          ? "http://localhost"
-          : "http://localhost:5173",
-      currentURL:
-        process.env.NODE_ENV === "production"
-          ? "http://localhost"
-          : "http://localhost:5173",
+      productionURL: process.env.FRONTEND_URL || "http://localhost",
+      currentURL: process.env.FRONTEND_URL || "http://localhost",
     }),
   ],
-  trustedOrigins: [
-    process.env.NODE_ENV === "production"
-      ? "http://localhost"
-      : "http://localhost:5173",
-  ],
+  trustedOrigins: [process.env.FRONTEND_URL || "http://localhost"],
   emailAndPassword: {
     enabled: true,
   },
