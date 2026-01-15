@@ -154,6 +154,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./packages/shared/.env
+    environment:
+      - NODE_ENV=production
     volumes:
       - ./apps/web/src:/app/apps/web/src
       - ./packages:/app/packages

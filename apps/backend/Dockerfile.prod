@@ -36,11 +36,8 @@ RUN addgroup -g 1001 -S appgroup && \
 # Copy from the deployed folder in the build stage
 COPY --from=build --chown=appuser:appgroup /prod ./
 
-ENV NODE_ENV=production
-
 # Use the non-root user
 USER appuser
-
 EXPOSE 5001
 
 # Run using tsx since there's no build script defined
