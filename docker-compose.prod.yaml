@@ -84,6 +84,8 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - BETTER_AUTH_URL=http://localhost/api/auth
+      - FRONTEND_URL=http://localhost
     env_file:
       - ./apps/backend/.env
       - ./packages/shared/.env

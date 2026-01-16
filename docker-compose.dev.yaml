@@ -65,6 +65,8 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=development
+      - BETTER_AUTH_URL=http://localhost:5173/api/auth
+      - FRONTEND_URL=http://localhost:5173
     env_file:
       - ./apps/backend/.env
       - ./packages/shared/.env
