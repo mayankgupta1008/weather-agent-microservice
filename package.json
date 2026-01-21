@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Intelligent weather notification system with AI agent orchestration, automated scheduling via BullMQ, and Redis-backed job queues.",
   "main": "index.js",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": "10.26.2"
+  },
   "scripts": {
     "dev:up": "docker-compose -f docker-compose.dev.yaml up -d --build --remove-orphans",
     "dev:down": "docker-compose -f docker-compose.dev.yaml down",
@@ -13,7 +17,10 @@
     "prod:down": "docker-compose -f docker-compose.prod.yaml down",
     "prod:nuke": "docker-compose -f docker-compose.prod.yaml down -v --remove-orphans",
     "prod:rebuild": "docker-compose -f docker-compose.prod.yaml build --no-cache && docker-compose -f docker-compose.prod.yaml up -d --remove-orphans",
-    "prod:restart": "docker-compose -f docker-compose.prod.yaml restart"
+    "prod:restart": "docker-compose -f docker-compose.prod.yaml restart",
+    "mobile:dev": "pnpm --filter mobile start",
+    "mobile:ios": "pnpm --filter mobile ios",
+    "mobile:android": "pnpm --filter mobile android"
   },
   "repository": {
     "type": "git",

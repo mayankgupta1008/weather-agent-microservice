@@ -11,6 +11,25 @@ An enterprise-grade, AI-orchestrated weather intelligence system built with a fo
 
 This project isn't just a weather app; it's a blueprint for a **Production-Ready SaaS**.
 
+## 📂 Project Structure
+
+```
+.
+├── apps
+│   ├── agent-service   # AI Weather Intelligence & Automation
+│   ├── backend         # Authentication & User Management
+│   ├── mobile          # React Native Mobile App
+│   └── web             # React (Vite) Frontend
+├── packages
+│   └── shared          # Shared utilities, types, and schema
+├── infra               # Infrastructure configuration & scripts
+├── k8s                 # Kubernetes manifests for deployment
+├── terraform           # Terraform scripts for cloud provisioning
+├── docker-compose.dev.yaml   # Local development orchestration
+├── docker-compose.prod.yaml  # Production orchestration
+└── README.md
+```
+
 ### 1. Monorepo & Microservices
 
 Built with **Turborepo**, the codebase is split into independent services that share core logic through internal packages.
