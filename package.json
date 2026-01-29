@@ -18,9 +18,7 @@
     "prod:nuke": "docker-compose -f docker-compose.prod.yaml down -v --remove-orphans",
     "prod:rebuild": "docker-compose -f docker-compose.prod.yaml build --no-cache && docker-compose -f docker-compose.prod.yaml up -d --remove-orphans",
     "prod:restart": "docker-compose -f docker-compose.prod.yaml restart",
-    "mobile:dev": "pnpm --filter mobile start",
-    "mobile:ios": "pnpm --filter mobile ios",
-    "mobile:android": "pnpm --filter mobile android"
+    "mobile:dev": "pnpm --filter mobile start"
   },
   "repository": {
     "type": "git",

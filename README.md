@@ -1,147 +1,543 @@
-# 🌤️ WeatherMind: Enterprise-Level Cloud-Native Microservices Platform
+# WeatherMind
+
+**AI-Orchestrated Weather Intelligence Platform**
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Tech Stack](https://img.shields.io/badge/Stack-Node.js%20|%20TypeScript%20|%20React%20|%20K8s%20|%20Nginx-brightgreen)]()
+[![Node](https://img.shields.io/badge/Node.js-22.x-green.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-326CE5.svg)](https://kubernetes.io/)
 
-An enterprise-grade, AI-orchestrated weather intelligence system built with a focus on **scalability**, **fault tolerance**, and **cloud-agnostic infrastructure**. This platform demonstrates elite Software Development Life Cycle (SDLC) practices, from local development to production-ready deployments.
+A production-grade, cloud-native microservices platform that delivers personalized weather intelligence through AI-powered automation. Built with enterprise patterns used by companies like LinkedIn, Uber, and Klarna for their AI agent systems.
 
 ---
 
-## 🏗️ Architectural Excellence
+## Table of Contents
 
-This project isn't just a weather app; it's a blueprint for a **Production-Ready SaaS**.
+- [Architecture Overview](#architecture-overview)
+- [Technical Highlights](#technical-highlights)
+- [System Design](#system-design)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Key Engineering Decisions](#key-engineering-decisions)
+- [Infrastructure](#infrastructure)
+- [Getting Started](#getting-started)
+- [API Reference](#api-reference)
+- [Roadmap](#roadmap)
+- [License](#license)
 
-## 📂 Project Structure
+---
+
+## Architecture Overview
 
 ```
-.
-├── apps
-│   ├── agent-service   # AI Weather Intelligence & Automation
-│   ├── backend         # Authentication & User Management
-│   ├── mobile          # React Native Mobile App
-│   └── web             # React (Vite) Frontend
-├── packages
-│   └── shared          # Shared utilities, types, and schema
-├── infra               # Infrastructure configuration & scripts
-├── k8s                 # Kubernetes manifests for deployment
-├── terraform           # Terraform scripts for cloud provisioning
-├── docker-compose.dev.yaml   # Local development orchestration
-├── docker-compose.prod.yaml  # Production orchestration
-└── README.md
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              INGRESS (Nginx)                                 │
+│                    SSL/TLS • Rate Limiting • Path Routing                    │
+└─────────────────────────────┬───────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌───────────────┐    ┌───────────────┐    ┌───────────────┐
+│   Web (React) │    │    Backend    │    │ Agent Service │
+│   Vite + SPA  │    │  Express.js   │    │   LangGraph   │
+│   Port 5173   │    │   Port 5001   │    │   Port 5002   │
+└───────────────┘    └───────┬───────┘    └───────┬───────┘
+                             │                     │
+                             │     ┌───────────────┤
+                             │     │               │
+                             ▼     ▼               ▼
+                      ┌─────────────────┐   ┌─────────────┐
+                      │    MongoDB      │   │    Redis    │
+                      │  (StatefulSet)  │   │   (Queue)   │
+                      └─────────────────┘   └─────────────┘
+                                                   │
+                                                   ▼
+                                          ┌───────────────┐
+                                          │    BullMQ     │
+                                          │  Job Worker   │
+                                          └───────────────┘
 ```
 
-### 1. Monorepo & Microservices
+### Data Flow
 
-Built with **Turborepo**, the codebase is split into independent services that share core logic through internal packages.
-
-- **`apps/web`**: High-performance React (Vite) frontend.
-- **`apps/backend`**: Authentication & User Management service (Express + BetterAuth).
-- **`apps/agent-service`**: AI Weather Intelligence & Automation service.
-- **`packages/shared`**: Shared DB models, auth middleware, and monitoring logic.
-
-### 2. AI Agent Orchestration (LangGraph)
-
-Unlike simple API wrappers, this system uses **LangGraph.js** to manage complex, stateful AI workflows.
-
-- **Cycles & Logic**: The agent can reason, fetch data, format it, and handle errors autonomously.
-- **Tools**: Custom tools for weather data extraction and email delivery.
-
-### 3. Reliability & Scheduling
-
-- **BullMQ + Redis**: Distributed job processing ensures that high-volume email tasks are queued and retried automatically.
-- **Distributed Caching**: Redis acts as both a job queue and a session store.
+1. **User Request** → Nginx Ingress routes to appropriate service
+2. **Authentication** → Backend validates session via BetterAuth
+3. **Schedule Creation** → Job queued to Redis via BullMQ
+4. **Scheduled Execution** → Worker invokes LangGraph agent
+5. **AI Pipeline** → Fetch weather → Format email → Send via SMTP
 
 ---
 
-## 🚀 Cloud-Native Infrastructure & Traffic Management
+## Technical Highlights
 
-The project is designed to be **Cloud-Agnostic**, prioritizing portability and operational control.
+### Why This Architecture Matters
 
-- **Kubernetes (K8s)**: Complete manifest suite for Deployments, StatefulSets (MongoDB/Redis), and Services.
-- **Nginx Ingress**: Acts as the API Gateway, handling path-based routing, SSL termination, and request rate limiting.
-- **Cert-Manager**: Automated SSL/TLS certificate management via Let's Encrypt integration.
-- **Observability**: Integrated **Prometheus** for metrics scraping and **Grafana** for real-time performance dashboards.
+| Decision | Rationale | Industry Validation |
+|----------|-----------|---------------------|
+| **Monorepo with pnpm workspaces** | Single source of truth, shared code reuse, atomic commits | Google, Meta, Vercel use monorepos at scale |
+| **LangGraph for AI agents** | Stateful workflows, error recovery, conditional routing | LinkedIn, Uber, Klarna use LangGraph in production |
+| **Microservices separation** | Independent scaling, fault isolation, team autonomy | Standard for high-growth startups |
+| **Kubernetes-first** | Cloud-agnostic, declarative infrastructure, auto-healing | 87% of organizations deploy K8s (2025) |
+| **BullMQ + Redis** | Reliable job processing, automatic retries, cron scheduling | Production-grade queue used by enterprises |
 
----
+### AI Agent Architecture (LangGraph)
 
-## 🛠️ Enterprise SDLC Workflow
+Unlike simple API wrappers or linear chains, this system uses **graph-based orchestration**:
 
-Detailed implementation of professional software engineering standards:
+```
+                    ┌──────────────────┐
+                    │   START STATE    │
+                    │  { city, email } │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ fetchWeatherNode │──── OpenWeatherMap API
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ formatEmailNode  │──── Template Engine
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │  sendEmailNode   │──── Nodemailer + Gmail SMTP
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │       END        │
+                    │  { result, logs }│
+                    └──────────────────┘
+```
 
-1.  **Local Development**: Using **Kind (Kubernetes in Docker)** to mirror the production environment locally with dev-prod parity.
-2.  **Containerization**: Multi-stage Docker builds to produce optimized, secure, and minimal production images.
-3.  **Traffic Control**: Advanced Nginx configuration for service discovery and secure routing between microservices.
-4.  **Security**: unified authentication layer via **BetterAuth** with secure session management and cross-service validation.
-
----
-
-## 📘 Technical Design & Rationale
-
-Strategic decisions behind the platform's architecture.
-
-### Why Microservices for this system?
-
-Separates concerns effectively. If the AI agent (LangGraph) becomes compute-intensive, we scale only `agent-service`. If user signups spike, we scale `backend`. It prevents a single point of failure and allows for independent deployment cycles.
-
-### How is Data Consistency handled across services?
-
-We use a **Shared Model Package** in our monorepo. This ensures all services are synchronized on the schema while maintaining separate logical collections to prevent tight coupling at the database level.
-
-### Why host Databases in K8s instead of Managed Services initially?
-
-For early-stage scaling, it's about **Cost vs. Portability**. Hosting in K8s (StatefulSets) is cost-effective and 100% cloud-agnostic. The architecture is designed to be "Managed-Ready"—the switch to RDS or Atlas is a simple environment variable change, but the core logic remains portable.
-
-### What is the advantage of LangGraph over linear chains?
-
-**Control and Error Recovery**. LangGraph allows for **Cycles** and **State Management**. Unlike linear chains, a graph can "loop back" if a tool result (like a weather fetch) is unsatisfactory or needs refinement, which is critical for reliable agentic behavior.
-
----
-
-## 🔧 Tech Stack & Roadmap
-
-| Layer          | Technologies                                  |
-| :------------- | :-------------------------------------------- |
-| **Frontend**   | React, Vite, TailwindCSS, Lucide Icons        |
-| **AI/Agent**   | LangGraph.js, LangChain.js, OpenAI            |
-| **Backend**    | Node.js, TypeScript, Express, BetterAuth, Zod |
-| **Queues**     | BullMQ, Redis (IORedis)                       |
-| **Database**   | MongoDB (Mongoose)                            |
-| **Networking** | Nginx Ingress, Cert-Manager                   |
-| **Monitoring** | Prometheus, Grafana                           |
-
-### 🗺️ Future Roadmap
-
-- [ ] **Infrastructure as Code**: Implementing **Terraform** for automated cloud resource provisioning (EKS/GKE).
-- [ ] **CI/CD**: Enhancing GitHub Actions for full automated deployment validation.
-- [ ] **Multi-model Agents**: Adding support for local LLMs (Ollama) to reduce external API dependency.
+**Key Capabilities:**
+- **State Persistence**: Each node passes state to the next
+- **Error Recovery**: Failed nodes can retry or route to fallback
+- **Conditional Logic**: Graph can branch based on intermediate results
+- **Observability**: Each step is logged for debugging
 
 ---
 
-## 🛠️ Getting Started
+## System Design
+
+### Authentication Flow
+
+```
+┌────────┐     ┌─────────┐     ┌───────────┐     ┌─────────┐
+│ Client │────▶│ Backend │────▶│ BetterAuth│────▶│ MongoDB │
+└────────┘     └─────────┘     └───────────┘     └─────────┘
+     │              │                                  │
+     │              │         Session Created          │
+     │◀─────────────┼──────────────────────────────────┘
+     │              │
+     │  Set-Cookie: session_token
+     │◀─────────────┘
+```
+
+**Security Features:**
+- Session-based authentication with secure cookies
+- OAuth 2.0 support (Google)
+- Bearer token support for API clients
+- Automatic session cleanup on user deletion
+
+### Job Scheduling Architecture
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Backend   │───▶│    Redis    │───▶│   BullMQ    │───▶│   Worker    │
+│  (Producer) │    │   (Queue)   │    │ (Scheduler) │    │ (Consumer)  │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+                                            │
+                                            │ Cron: "0 17 * * *"
+                                            │ (5 PM daily)
+                                            ▼
+                                    ┌─────────────┐
+                                    │  LangGraph  │
+                                    │    Agent    │
+                                    └─────────────┘
+```
+
+**Reliability Features:**
+- Automatic job retries on failure
+- Dead letter queue for failed jobs
+- Job deduplication by ID
+- Graceful shutdown handling
+
+---
+
+## Technology Stack
+
+### Core Services
+
+| Layer | Technology | Version | Purpose |
+|-------|------------|---------|---------|
+| **Runtime** | Node.js | 22.x | JavaScript runtime |
+| **Language** | TypeScript | 5.9 | Type safety |
+| **Package Manager** | pnpm | 10.x | Efficient monorepo management |
+
+### Frontend
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.x | UI framework |
+| Vite | 7.x | Build tool & dev server |
+| TailwindCSS | 4.x | Utility-first styling |
+| shadcn/ui | - | Component library |
+| React Router | 7.x | Client-side routing |
+
+### Backend
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Express | 5.x | HTTP framework |
+| BetterAuth | 1.x | Authentication |
+| Mongoose | 9.x | MongoDB ODM |
+| Zod | 4.x | Runtime validation |
+| Helmet | 8.x | Security headers |
+
+### AI/Agent
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| LangGraph.js | 1.x | Agent orchestration |
+| LangChain.js | 1.x | LLM tooling |
+| BullMQ | 5.x | Job queue |
+| Nodemailer | 7.x | Email delivery |
+
+### Infrastructure
+
+| Technology | Purpose |
+|------------|---------|
+| Docker | Containerization |
+| Kubernetes | Container orchestration |
+| Nginx Ingress | API gateway & load balancing |
+| Cert-Manager | SSL/TLS automation |
+| Prometheus | Metrics collection |
+| Grafana | Observability dashboards |
+| Terraform | Infrastructure as Code |
+
+### Data Layer
+
+| Technology | Purpose |
+|------------|---------|
+| MongoDB | Primary database |
+| Redis | Cache & job queue |
+
+---
+
+## Project Structure
+
+```
+weather-agent/
+├── apps/                           # Application services
+│   ├── backend/                    # Auth & API service (Express)
+│   │   ├── src/
+│   │   │   ├── index.ts           # Server entry point
+│   │   │   ├── routes/            # API route definitions
+│   │   │   └── controllers/       # Business logic
+│   │   ├── Dockerfile.dev
+│   │   └── Dockerfile.prod
+│   │
+│   ├── agent-service/              # AI agent service (LangGraph)
+│   │   ├── src/
+│   │   │   ├── agents/            # LangGraph workflows
+│   │   │   │   ├── agent.ts       # Main agent graph
+│   │   │   │   └── tools/         # Agent capabilities
+│   │   │   └── workers/           # BullMQ job consumers
+│   │   ├── Dockerfile.dev
+│   │   └── Dockerfile.prod
+│   │
+│   ├── web/                        # React frontend (Vite)
+│   │   ├── src/
+│   │   │   ├── pages/             # Route components
+│   │   │   ├── components/        # Reusable UI
+│   │   │   └── lib/               # Utilities & auth client
+│   │   ├── nginx.conf             # Production server config
+│   │   ├── Dockerfile.dev
+│   │   └── Dockerfile.prod
+│   │
+│   └── mobile/                     # React Native app (Expo)
+│       └── App.tsx
+│
+├── packages/                       # Shared internal packages
+│   └── shared/                     # Cross-service utilities
+│       ├── src/
+│       │   ├── models/            # Mongoose schemas
+│       │   ├── common/            # Middleware & configs
+│       │   └── monitoring/        # Prometheus metrics
+│       └── package.json
+│
+├── k8s/                            # Kubernetes manifests
+│   ├── ingress.yaml               # Nginx ingress rules
+│   ├── cert-manager-issuer.yaml   # Let's Encrypt config
+│   ├── backend/                   # Backend deployment
+│   ├── agent-service/             # Agent deployment
+│   ├── web/                       # Frontend deployment
+│   ├── mongodb/                   # Database StatefulSet
+│   └── redis/                     # Cache StatefulSet
+│
+├── infra/                          # Infrastructure configs
+│   ├── nginx/                     # Nginx proxy config
+│   ├── prometheus/                # Metrics scraping
+│   └── grafana/                   # Dashboard provisioning
+│
+├── terraform/                      # Cloud provisioning (IaC)
+│   ├── main.tf
+│   ├── variables.tf
+│   └── output.tf
+│
+├── scripts/                        # Deployment utilities
+│   ├── deploy-local.sh            # Local K8s setup
+│   └── stop-local.sh
+│
+├── .github/
+│   └── workflows/
+│       └── deploy.yaml            # CI/CD pipeline
+│
+├── docker-compose.dev.yaml         # Local development
+├── docker-compose.prod.yaml        # Production compose
+├── pnpm-workspace.yaml             # Monorepo config
+└── package.json                    # Root workspace
+```
+
+---
+
+## Key Engineering Decisions
+
+### 1. Why Microservices Over Monolith?
+
+**Problem**: AI workloads have different scaling characteristics than web servers.
+
+**Solution**: Separate `backend` (auth, light I/O) from `agent-service` (CPU-intensive AI).
+
+**Result**: Scale AI processing independently without over-provisioning auth servers.
+
+```yaml
+# k8s/agent-service/hpa.yaml
+spec:
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 70
+```
+
+### 2. Why Self-Hosted Databases in K8s?
+
+**Problem**: Managed databases (RDS, Atlas) cost $15-100+/month minimum.
+
+**Solution**: Run MongoDB/Redis as StatefulSets with Persistent Volume Claims.
+
+**Trade-off**: More operational overhead, but 100% cloud-agnostic and cost-effective for early stage.
+
+**Migration Path**: Switch to managed services by changing one environment variable.
+
+### 3. Why LangGraph Over Linear Chains?
+
+**Problem**: Linear chains fail silently, can't recover from errors, no state between steps.
+
+**Solution**: LangGraph provides graph-based execution with:
+- State persistence between nodes
+- Conditional routing based on results
+- Built-in retry mechanisms
+- Debugging via state inspection
+
+### 4. Why BetterAuth Over Passport.js?
+
+**Problem**: Passport.js requires significant boilerplate and doesn't handle modern auth patterns well.
+
+**Solution**: BetterAuth provides:
+- Built-in OAuth providers
+- Session management out of the box
+- Database adapters (MongoDB)
+- Bearer token support for APIs
+
+### 5. Why pnpm Over npm/yarn?
+
+**Problem**: npm/yarn duplicate dependencies across packages, slow installs.
+
+**Solution**: pnpm uses content-addressable storage with hard links.
+
+**Result**: 60-80% reduction in disk usage, 3-5x faster installs.
+
+---
+
+## Infrastructure
+
+### Development Environment
+
+```bash
+# Start all services with hot reload
+pnpm dev:up
+
+# Services available:
+# - Web:          http://localhost:5173
+# - Backend API:  http://localhost:5001
+# - Agent API:    http://localhost:5002
+# - Mongo Express: http://localhost:8081
+```
+
+### Production Environment (Kubernetes)
+
+```bash
+# Deploy to local Kind cluster
+./scripts/deploy-local.sh
+
+# Deploy to cloud (after Terraform provisioning)
+kubectl apply -f k8s/
+```
+
+### Scaling Configuration
+
+| Service | Min Replicas | Max Replicas | Scale Trigger |
+|---------|--------------|--------------|---------------|
+| Backend | 2 | 10 | CPU > 50% |
+| Agent Service | 1 | 10 | CPU > 70% |
+| Web | 2 | 5 | CPU > 50% |
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- `pnpm` 8+
-- `Docker` & `Kind` (for local K8s)
-- `kubectl`
+- Node.js 22.x
+- pnpm 10.x (`corepack enable && corepack prepare pnpm@latest --activate`)
+- Docker & Docker Compose
+- kubectl (for K8s deployment)
+- Kind (for local K8s cluster)
 
-### Local Deployment (Production Mirror)
+### Quick Start (Docker Compose)
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/your-username/weather-agent.git
+cd weather-agent
 
-# Run the automated local K8s deployment script
-chmod +x scripts/deploy-local.sh
-./scripts/deploy-local.sh
+# Copy environment files
+cp .env.example .env
+cp packages/shared/.env.example packages/shared/.env
+
+# Start development environment
+pnpm dev:up
+
+# Open http://localhost:5173
+```
+
+### Environment Variables
+
+```bash
+# packages/shared/.env
+MONGODB_URI=mongodb://user:root@mongodb:27017/weather-agent?authSource=admin
+BETTER_AUTH_SECRET=<generate-random-string>
+GOOGLE_CLIENT_ID=<oauth-client-id>
+GOOGLE_CLIENT_SECRET=<oauth-secret>
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# apps/agent-service/.env
+GMAIL_USER=<your-gmail>
+GMAIL_PASSWORD=<app-password>
+OPENWEATHER_API_KEY=<api-key>
 ```
 
 ---
 
-## 📄 License
+## API Reference
 
-Distributed under the Apache 2.0 License. See `LICENSE` for more information.
+### Authentication Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/sign-up/email` | Create account |
+| POST | `/api/auth/sign-in/email` | Login |
+| GET | `/api/auth/get-session` | Get current session |
+| POST | `/api/auth/sign-out` | Logout |
+
+### Weather Schedule Endpoints
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/schedule/create` | Create weather schedule | Required |
+| DELETE | `/api/schedule/delete/:id` | Delete schedule | Required |
+
+### Health & Metrics
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Backend health check |
+| GET | `/api/metrics` | Prometheus metrics |
+| GET | `/health` | Agent service health |
 
 ---
 
-**Built with ❤️ for Scalability and AI Excellence.**
+## Roadmap
+
+### In Progress
+
+- [ ] Dashboard UI implementation
+- [ ] Mobile app (React Native/Expo)
+- [ ] Multi-city weather schedules
+
+### Planned
+
+- [ ] Unit and integration test suites
+- [ ] ESLint configuration for backend services
+- [ ] Terraform cloud provisioning (EKS/GKE)
+- [ ] GitHub Actions deployment pipeline
+- [ ] OpenAPI documentation
+- [ ] Multi-model LLM support (Ollama)
+- [ ] Real-time notifications (WebSocket)
+
+---
+
+## Development
+
+### Code Quality
+
+```bash
+# Lint web frontend
+pnpm --filter web lint
+
+# Build specific service
+pnpm --filter backend build
+pnpm --filter web build
+```
+
+### Adding a New Service
+
+1. Create directory in `apps/`
+2. Add to `pnpm-workspace.yaml`
+3. Create Dockerfile.dev and Dockerfile.prod
+4. Add to docker-compose files
+5. Create K8s manifests in `k8s/`
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+
+---
+
+## License
+
+Distributed under the Apache 2.0 License. See [LICENSE](LICENSE) for details.
+
+---
+
+## Architecture Documentation
+
+For detailed architectural decisions and infrastructure patterns, see:
+- [ARCHITECTURE_DESIGN.md](ARCHITECTURE_DESIGN.md) - Infrastructure scaling guide
+- [k8s/README.md](k8s/README.md) - Kubernetes deployment guide
+- [k8s/INGRESS_GUIDE.md](k8s/INGRESS_GUIDE.md) - Ingress configuration
+
+---
+
+**Built for scale. Designed for production.**
